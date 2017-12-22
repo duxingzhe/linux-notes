@@ -1,3 +1,3 @@
 # linux-notes
 
-Notes for Sudy Linux
+Notes for sudying Linux
