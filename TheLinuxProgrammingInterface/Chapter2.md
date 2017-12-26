@@ -71,3 +71,43 @@ Each group is identified by a single line in the system group file, /etc/group ,
 ##### Superuser
 
 One user, known as the superuser, has special privileges within the system. The superuser account has user ID 0, and normally has the login name root. On typical UNIX systems, the superuser bypasses all permission checks in the system.
+
+#### Single Directory Hierarchy, Directories, Links, and Files
+
+At the base of this hierarchy is the root directory, named / (slash). All files and directories are children or further removed descendants of the root directory. Figure 2-1 shows an example of this hierarchical file structure.
+
+##### File types
+
+Within the file system, each file is marked with a type, indicating what kind of file it is. One of these file types denotes ordinary data files, which are usually called regular or plain files to distinguish them from other file types. These other file types include devices, pipes, sockets, directories, and symbolic links.
+
+##### Directories and links
+
+A directory is a special file whose contents take the form of a table of filenames coupled with references to the corresponding files.
+
+Every directory contains at least two entries: . (dot), which is a link to the directory itself, and .. (dot-dot), which is a link to its parent directory, the directory above it in the hierarchy. Every directory, except the root directory, has a parent. For the root directory, the dot-dot entry is a link to the root directory itself (thus, /.. equates to / ).
+
+##### Symbolic links
+
+Like a normal link, a symbolic link provides an alternative name for a file. But whereas a normal link is a filename-plus-pointer entry in a directory list, a symbolic link is a specially marked file containing the name of another file. (In other words, a symbolic link has a filename-plus-pointer entry in a directory, and the file referred to by the pointer contains a string that names another file.)
+
+##### Filenames
+
+On most Linux file systems, filenames can be up to 255 characters long. Filenames may contain any characters except slashes ( / ) and null characters ( \0 ). However, it is advisable to employ only letters and digits, and the . (period), _ (underscore), and - (hyphen) characters. This 65-character set, [-._a-zA-Z0-9] , is referred to in SUSv3 as the portable filename character set.
+
+##### Pathnames
+
+A pathname is a string consisting of an optional initial slash (/) followed by a series of filenames separated by slashes. All but the last of these component filenames identifies a directory (or a symbolic link that resolves to a directory). The last component of a pathname may identify any type of file, including a directory.
+
+A pathname describes the location of a file within the single directory hier-
+archy, and is either absolute or relative:
+
+* An absolute pathname begins with a slash (/) and specifies the location of a file with respect to the root directory. Examples of absolute pathnames for files in Figure 2-1 are /home/mtk/.bashrc , /usr/include , and / (the pathname of the root directory).
+* A relative pathname specifies the location of a file relative to a process’s current working directory (see below), and is distinguished from an absolute pathname by the absence of an initial slash. In Figure 2-1, from the directory usr, the file types.h could be referenced using the relative pathname include/sys/types.h, while from the directory avr , the file .bashrc could be accessed using the relative pathname ../mtk/.bashrc.
+
+##### Current working directory
+
+Each process has a current working directory (sometimes just referred to as the process’s working directory or current directory). This is the process’s “current location” within the single directory hierarchy, and it is from this directory that relative pathnames are interpreted for the process.
+
+##### File ownership and permissions
+
+Each file has an associated user ID and group ID that define the owner of the file and the group to which it belongs. The ownership of a file is used to determine the access rights available to users of the file.
