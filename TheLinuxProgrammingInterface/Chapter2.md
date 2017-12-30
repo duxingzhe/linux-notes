@@ -123,3 +123,74 @@ The I/O system calls refer to open files using a file descriptor, a (usually sma
 ##### The stdio library
 
 To perform file I/O, C programs typically employ I/O functions contained in the standard C library. This set of functions, referred to as the stdio library, includes fopen(), fclose(), scanf(), printf(), fgets(), fputs(), and so on. The stdio functions are layered on top of the I/O system calls (open(), close(), read(), write(), and so on).
+
+#### Programs
+
+Programs normally exist in two forms. The first form is source code, human-readable text consisting of a series of statements written in a programming language such as C. To be executed, source code must be converted to the second form: binary machine-language instructions that the computer can understand. (This contrasts with a script, which is a text file containing commands to be directly processed by a program such as a shell or other command interpreter.) The two meanings of the term program are normally considered synonymous, since the step of compiling and linking converts source code into semantically equivalent binary machine code.
+
+##### Filters
+
+A filter is the name often applied to a program that reads its input from stdin, performs some transformation of that input, and writes the transformed data to stdout.
+
+##### Command-line arguments
+
+In C, programs can access the command-line arguments, the words that are supplied on the command line when the program is run.
+
+#### Processes
+
+Put most simply, a process is an instance of an executing program. When a program is executed, the kernel loads the code of the program into virtual memory, allocates space for program variables, and sets up kernel bookkeeping data structures to record various information (such as process ID, termination status, user IDs, and group IDs) about the process.
+
+From a kernel point of view, processes are the entities among which the kernel must share the various resources of the computer. For resources that are limited, such as memory, the kernel initially allocates some amount of the resource to the process, and adjusts this allocation over the lifetime of the process in response to the demands of the process and the overall system demand for that resource.
+
+##### Process memory layout
+A process is logically divided into the following parts, known as segments:
+
+* Text: the instructions of the program.
+* Data: the static variables used by the program.
+* Heap: an area from which programs can dynamically allocate extra memory.
+* Stack: a piece of memory that grows and shrinks as functions are called and return and that is used to allocate storage for local variables and function call linkage information.
+
+##### Process creation and program execution
+
+A process can create a new process using the fork() system call. The process that calls fork() is referred to as the parent process, and the new process is referred to as the child process. The kernel creates the child process by making a duplicate of the parent process. The child inherits copies of the parent’s data, stack, and heap segments, which it may then modify independently of the parent’s copies. (The program text, which is placed in memory marked as read-only, is shared by the two processes.)
+
+##### Process ID and parent process ID
+
+Each process has a unique integer process identifier (PID). Each process also has a parent process identifier (PPID) attribute, which identifies the process that requested the kernel to create this process.
+
+##### Process termination and termination status
+
+A process can terminate in one of two ways: by requesting its own termination using the _exit() system call (or the related exit() library function), or by being killed by the delivery of a signal.
+
+##### Process user and group identifiers (credentials)
+Each process has a number of associated user IDs (UIDs) and group IDs (GIDs).These include:
+
+* Real user ID and real group ID
+* Effective user ID and effective group ID
+* Supplementary group IDs
+
+##### Privileged processes
+
+Traditionally, on UNIX systems, a privileged process is one whose effective user ID is 0 (superuser). Such a process bypasses the permission restrictions normally applied by the kernel. By contrast, the term unprivileged (or nonprivileged) is applied to processes run by other users. Such processes have a nonzero effective user ID and must abide by the permission rules enforced by the kernel.
+
+##### Capabilities
+
+Since kernel 2.2, Linux divides the privileges traditionally accorded to the superuser into a set of distinct units called capabilities. Each privileged operation is associated with a particular capability, and a process can perform an operation only if it has the corresponding capability. A traditional superuser process (effective user ID of 0) corresponds to a process with all capabilities enabled.
+
+##### The init process
+
+When booting the system, the kernel creates a special process called init, the “parent of all processes,” which is derived from the program file /sbin/init . All processes on the system are created (using fork()) either by init or by one of its descendants. The init process always has the process ID 1 and runs with superuser privileges. The init process can’t be killed (not even by the superuser), and it terminates only when the system is shut down. The main task of init is to create and monitor a range of processes required by a running system.
+
+##### Daemon processes
+
+A daemon is a special-purpose process that is created and handled by the system in the same way as other processes, but which is distinguished by the following characteristics:
+* It is long-lived. A daemon process is often started at system boot and remains in existence until the system is shut down.
+* It runs in the background, and has no controlling terminal from which it can read input or to which it can write output.
+
+##### Environment list
+
+Each process has an environment list, which is a set of environment variables that are maintained within the user-space memory of the process. Each element of this list consists of a name and an associated value. When a new process is created via fork(), it inherits a copy of its parent’s environment. Thus, the environment provides a mechanism for a parent process to communicate information to a child process. When a process replaces the program that it is running using exec(), the new program either inherits the environment used by the old program or receives a new environment specified as part of the exec() call.
+
+##### Resource limits
+
+Each process consumes resources, such as open files, memory, and CPU time. Using the setrlimit() system call, a process can establish upper limits on its consumption of various resources. Each such resource limit has two associated values: a soft limit, which limits the amount of the resource that the process may consume; and a hard limit, which is a ceiling on the value to which the soft limit may be adjusted. An unprivileged process may change its soft limit for a particular resource to any value in the range from zero up to the corresponding hard limit, but can only lower its hard limit.
