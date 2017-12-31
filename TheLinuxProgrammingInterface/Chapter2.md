@@ -194,3 +194,62 @@ Each process has an environment list, which is a set of environment variables th
 ##### Resource limits
 
 Each process consumes resources, such as open files, memory, and CPU time. Using the setrlimit() system call, a process can establish upper limits on its consumption of various resources. Each such resource limit has two associated values: a soft limit, which limits the amount of the resource that the process may consume; and a hard limit, which is a ceiling on the value to which the soft limit may be adjusted. An unprivileged process may change its soft limit for a particular resource to any value in the range from zero up to the corresponding hard limit, but can only lower its hard limit.
+
+#### Memory Mappings
+
+The mmap() system call creates a new memory mapping in the calling process’s virtual address space.
+
+Mappings fall into two categories:
+
+* A file mapping maps a region of a file into the calling process’s virtual memory. Once mapped, the file’s contents can be accessed by operations on the bytes in the corresponding memory region. The pages of the mapping are automatically loaded from the file as required.
+* By contrast, an anonymous mapping doesn’t have a corresponding file. Instead, the pages of the mapping are initialized to 0.
+
+#### Static and Shared Libraries
+
+An object library is a file containing the compiled object code for a (usually logically related) set of functions that may be called from application programs.
+
+Modern UNIX systems provide two types of object libraries: static libraries and shared libraries.
+
+##### Static libraries
+
+Static libraries (sometimes also known as archives) were the only type of library on early UNIX systems. A static library is essentially a structured bundle of compiled object modules. To use functions from a static library, we specify that library in the link command used to build a program. After resolving the various function references from the main program to the modules in the static library, the linker extracts copies of the required object modules from the library and copies these into the resulting executable file. We say that such a program is statically linked.
+
+##### Shared libraries
+
+Shared libraries were designed to address the problems with static libraries.
+
+If a program is linked against a shared library, then, instead of copying object modules from the library into the executable, the linker just writes a record into the executable to indicate that at run time the executable needs to use that shared library. When the executable is loaded into memory at run time, a program called the dynamic linker ensures that the shared libraries required by the executable are found and loaded into memory, and performs run-time linking to resolve the function calls in the executable to the corresponding definitions in the shared libraries. At run time, only a single copy of the code of the shared library needs to be resident in memory; all running programs can use that copy.
+
+#### Interprocess Communication and Synchronization
+
+One way for processes to communicate is by reading and writing information in disk files. However, for many applications, this is too slow and inflexible. Therefore, Linux, like all modern UNIX implementations, provides a rich set of mech-
+anisms for interprocess communication (IPC), including the following:
+* signals, which are used to indicate that an event has occurred;
+pipes (familiar to shell users as the | operator) and FIFOs, which can be used to transfer data between processes;
+* sockets, which can be used to transfer data from one process to another, either on the same host computer or on different hosts connected by a network;
+* file locking, which allows a process to lock regions of a file in order to prevent other processes from reading or updating the file contents;
+* message queues, which are used to exchange messages (packets of data) between processes;
+* semaphores, which are used to synchronize the actions of processes; and shared memory, which allows two or more processes to share a piece of memory. When one process changes the contents of the shared memory, all of the other processes can immediately see the changes.
+
+The wide variety of IPC mechanisms on UNIX systems, with sometimes overlapping functionality, is in part due to their evolution under different variants of the UNIX system and the requirements of various standards.
+
+#### Signals
+
+Signals are often described as “software interrupts.” The arrival of a signal informs a process that some event or exceptional condition has occurred. There are various types of signals, each of which identifies a different event or condition. Each signal type is identified by a different integer, defined with symbolic names of the form SIGxxxx.
+
+Signals are sent to a process by the kernel, by another process (with suitable permissions), or by the process itself. For example, the kernel may send a signal to a process when one of the following occurs:
+
+* the user typed the interrupt character (usually Control-C) on the keyboard;
+* one of the process’s children has terminated;
+* a timer (alarm clock) set by the process has expired; or
+* the process attempted to access an invalid memory address.
+
+Within the shell, the kill command can be used to send a signal to a process. The kill() system call provides the same facility within programs.
+
+When a process receives a signal, it takes one of the following actions, depending on the signal:
+
+* it ignores the signal;
+* it is killed by the signal; or
+* it is suspended until later being resumed by receipt of a special-purpose signal.
+
+For most signal types, instead of accepting the default signal action, a program can choose to ignore the signal (useful if the default action for the signal is something other than being ignored), or to establish a signal handler. A signal handler is a programmer-defined function that is automatically invoked when the signal is delivered to the process. This function performs some action appropriate to the condition that generated the signal.
