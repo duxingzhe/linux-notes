@@ -253,3 +253,87 @@ When a process receives a signal, it takes one of the following actions, dependi
 * it is suspended until later being resumed by receipt of a special-purpose signal.
 
 For most signal types, instead of accepting the default signal action, a program can choose to ignore the signal (useful if the default action for the signal is something other than being ignored), or to establish a signal handler. A signal handler is a programmer-defined function that is automatically invoked when the signal is delivered to the process. This function performs some action appropriate to the condition that generated the signal.
+
+A signal handler is a programmer-defined function that is automatically invoked when the signal is delivered to the process.
+
+#### Threads
+
+In modern UNIX implementations, each process can have multiple threads of execution. One way of envisaging threads is as a set of processes that share the same virtual memory, as well as a range of other attributes. Each thread is executing the same program code and shares the same data area and heap.
+
+The threading API provides condition variables and mutexes, which are primitives that enable the threads of a process to communicate and synchronize their actions, in particular, their use of shared variables. Threads can also communicate with one another using the IPC and synchronization mechanisms described in Section 2.10.
+
+#### Process Groups and Shell Job Control
+
+Each program executed by the shell is started in a new process.
+
+All major shells, except the Bourne shell, provide an interactive feature called job control, which allows the user to simultaneously execute and manipulate multiple commands or pipelines. In job-control shells, all of the processes in a pipeline are placed in a new process group or job. (In the simple case of a shell command line containing a single command, a new process group containing just a single process is created.) Each process in a process group has the same integer process group identifier, which is the same as the process ID of one of the processes in the group, termed the process group leader.
+
+#### Sessions, Controlling Terminals, and Controlling Processes
+
+A session is a collection of process groups ( jobs). All of the processes in a session have the same session identifier. A session leader is the process that created the session, and its process ID becomes the session ID.
+
+As a consequence of opening the controlling terminal, the session leader becomes the controlling process for the terminal. The controlling process receives a SIGHUP signal if a terminal disconnect occurs (e.g., if the terminal window is closed).
+At any point in time, one process group in a session is the foreground process group ( foreground job), which may read input from the terminal and send output to it. If the user types the interrupt character (usually Control-C) or the suspend character (usually Control-Z) on the controlling terminal, then the terminal driver sends a signal that kills or suspends (i.e., stops) the foreground process group. A session can have any number of background process groups (background jobs), which are created by terminating a command with the ampersand (&) character.
+
+#### Pseudoterminals
+
+A pseudoterminal is a pair of connected virtual devices, known as the master and slave. This device pair provides an IPC channel allowing data to be transferred in both directions between the two devices.
+
+Date and Time
+
+Two types of time are of interest to a process:
+
+* Real time is measured either from some standard point (calendar time) or from some fixed point, typically the start, in the life of a process (elapsed or wall clock time). On UNIX systems, calendar time is measured in seconds since midnight on the morning of January 1, 1970, Universal Coordinated Time (usually abbreviated UTC), and coordinated on the base point for timezones defined by the longitudinal line passing through Greenwich, England. This date, which is close to the birth of the UNIX system, is referred to as the Epoch.
+
+* Process time, also called CPU time, is the total amount of CPU time that a process
+has used since starting. CPU time is further divided into system CPU time, the
+time spent executing code in kernel mode (i.e., executing system calls and per-
+forming other kernel services on behalf of the process), and user CPU time, the
+time spent executing code in user mode (i.e., executing normal program code).
+The time command displays the real time, the system CPU time, and user CPU time
+taken to execute the processes in a pipeline.
+
+The time command displays the real time, the system CPU time, and user CPU time
+taken to execute the processes in a pipeline.
+
+#### Client-Server Architecture
+
+At various points in this book, we discuss the design and implementation of client-
+server applications.
+
+A client-server application is one that is broken into two component processes:
+
+* a client, which asks the server to carry out some service by sending it a request
+message; and
+
+* a server, which examines the client’s request, performs appropriate actions, and
+then sends a response message back to the client.
+
+Sometimes, the client and server may engage in an extended dialogue of requests
+and responses.
+
+Servers may implement a variety of services, such as:
+
+* providing access to a database or other shared information resource;
+* providing access to a remote file across a network;
+* encapsulating some business logic;
+* providing access to a shared hardware resource (e.g., a printer); or
+* serving web pages.
+
+Encapsulating a service within a single server is useful for a number of reasons, such as the following:
+
+* Efficiency: It may be cheaper to provide one instance of a resource (e.g., a printer) that is managed by a server than to provide the same resource locally on every computer.
+
+* Control, coordination, and security: By holding a resource (especially an information resource) at a single location, the server can coordinate access to the resource (e.g., so that two clients don’t simultaneously update the same piece of information) or secure it so that it is made available to only selected clients.
+
+* Operation in a heterogeneous environment: In a network, the various clients, and the server, can be running on different hardware and operating system platforms.
+
+#### Realtime
+
+Realtime applications are those that need to respond in a timely fashion to input. Frequently, such input comes from an external sensor or a specialized input device, and output takes the form of controlling some external hardware.
+
+POSIX.1b defined a number of extensions to POSIX.1 for the support of real-time applications. These include asynchronous I/O, shared memory, memory-mapped files, memory locking, realtime clocks and timers, alternative scheduling policies, realtime signals, message queues, and semaphores. Even though they don’t strictly qualify as realtime, most UNIX implementations now support some or all of these extensions. (During the course of this book, we describe those features of POSIX.1b that are supported by Linux.)
+
+The /proc File System
+
+Like several other UNIX implementations, Linux provides a /proc file system, which consists of a set of directories and files mounted under the /proc directory. The /proc file system is a virtual file system that provides an interface to kernel data structures in a form that looks like files and directories on a file system. This provides an easy mechanism for viewing and changing various system attributes. In addition, a set of directories with names of the form /proc/ PID, where PID is a process ID, allows us to view information about each process running on the system.
