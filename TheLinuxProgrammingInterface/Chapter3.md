@@ -112,3 +112,28 @@ The various library functions return different data types and different values t
 * Other library functions don’t use errno at all. The method for determining the existence and cause of errors depends on the particular function and is documented in the function’s manual page. For these functions, it is a mistake to use errno, perror(), or strerror() to diagnose errors.
 
 You can learn more in the book of _Advanced Programming in the Unix Environment_.
+
+### Common Functions and Header Files
+
+Most of the example programs include a header file containing commonly required definitions, and they also use a set of common functions. We discuss the header file and functions in this section.
+
+#### Common header file
+
+Listing 3-1 is the header file used by nearly every program in this book. This header file includes various other header files used by many of the example programs, defines a Boolean data type, and defines macros for calculating the minimum and maximum of two numeric values. Using this header file allows us to make the example programs a bit shorter.
+
+The err_exit() function is similar to errExit(), but differs in two respects:
+
+* It doesn’t flush standard output before printing the error message.
+* It terminates the process by calling _exit() instead of exit(). This causes the process to terminate without flushing stdio buffers or invoking exit handlers.
+
+#### Functions for parsing numeric command-line arguments
+
+The header file in Listing 3-5 provides the declaration of two functions that we frequently use for parsing integer command-line arguments: getInt() and getLong(). The primary advantage of using these functions instead of atoi(), atol(), and strtol() is that they provide some basic validity checking of numeric arguments.
+
+```
+#include "tlpi_hdr.h"
+int getInt(const char *arg, int flags, const char *name);
+long getLong(const char *arg, int flags, const char *name);
+```
+
+The getInt() and getLong() functions convert the string pointed to by arg to an int or a long, respectively. If arg doesn’t contain a valid integer string (i.e., only digits and the characters + and -), then these functions print an error message and terminate the program.
