@@ -137,3 +137,39 @@ long getLong(const char *arg, int flags, const char *name);
 ```
 
 The getInt() and getLong() functions convert the string pointed to by arg to an int or a long, respectively. If arg doesn’t contain a valid integer string (i.e., only digits and the characters + and -), then these functions print an error message and terminate the program.
+
+#### Portability Issues
+
+In this section, we consider the topic of writing portable system programs. We introduce feature test macros and the standard system data types defined by SUSv3, and then look at some other portability issues.
+
+##### Feature Test Macros
+
+Various standards govern the behavior of the system call and library function APIs (see Section 1.3). Some of these standards are defined by standards bodies such The Open Group (Single UNIX Specification), while others are defined by the two historically important UNIX implementations: BSD and System V Release 4 (and the associated System V Interface Definition).
+
+One way that we can do this is by defining the macro in the program source code before including any header files:
+
+```
+#define _BSD_SOURCE 1
+```
+
+Alternatively, we can use the –D option to the C compiler:
+
+```
+$ cc -D_BSD_SOURCE prog.c
+```
+
+> The term feature test macro may seem confusing, but it makes sense if we look at things from the perspective of the implementation. The implementation decides which of the features available in each header it should make visible, by testing (with #if) which values the application has defined for these macros.
+
+The following feature test macros are specified by the relevant standards, and consequently their usage is portable to all systems that support these standards:
+
+_POSIX_SOURCE
+
+If defined (with any value), expose definitions conforming to POSIX.1-1990 and ISO C (1990). This macro is superseded by _POSIX_C_SOURCE.
+
+_POSIX_C_SOURCE
+
+If defined with the value 1, this has the same effect as _POSIX_SOURCE. If defined with a value greater than or equal to 199309, also expose definitions for POSIX.1b (realtime).
+
+_XOPEN_SOURCE
+
+If defined (with any value), expose POSIX.1, POSIX.2, and X/Open (XPG4) definitions. If defined with the value 500 or greater, also expose SUSv2 (UNIX 98 and XPG5) extensions.
