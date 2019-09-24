@@ -173,3 +173,59 @@ If defined with the value 1, this has the same effect as _POSIX_SOURCE. If defin
 _XOPEN_SOURCE
 
 If defined (with any value), expose POSIX.1, POSIX.2, and X/Open (XPG4) definitions. If defined with the value 500 or greater, also expose SUSv2 (UNIX 98 and XPG5) extensions.
+
+#### Feature test macros in function prototypes and source code examples
+
+The manual pages describe which feature test macro(s) must be defined in order to make a particular constant definition or function declaration visible from a header file.
+
+All of the source code examples in this book are written so that they will compile using either the default GNU C compiler options or the following options:
+
+```
+$ cc -std=c99 -D_XOPEN_SOURCE=600
+```
+
+The prototype of each function shown in this book indicates any feature test macro(s) that must be defined in order to employ that function in a program compiled with either the default compiler options or the options in the cc just shown. The manual pages provide more precise descriptions of the feature test macro(s) required to expose the declaration of each function.
+
+### System Data Types
+
+Various implementation data types are represented using standard C types, for example, process IDs, user IDs, and file offsets. Although it would be possible to use the C fundamental types such as int and long to declare variables storing such information, this reduces portability across UNIX systems, for the following reasons:
+
+* The sizes of these fundamental types vary across UNIX implementations (e.g., a long may be 4 bytes on one system and 8 bytes on another), or sometimes even in different compilation environments on the same implementation. Furthermore, different implementations may use different types to represent the same information. For example, a process ID might be an int on one system but a long on another.
+* Even on a single UNIX implementation, the types used to represent information may differ between releases of the implementation. Notable examples on Linux are user and group IDs. On Linux 2.2 and earlier, these values were represented in 16 bits. On Linux 2.4 and later, they are 32-bit values.
+
+To avoid such portability problems, SUSv3 specifies various standard system data types, and requires an implementation to define and use these types appropriately.
+
+#### Printing system data type values
+
+When printing values of one of the numeric system data types shown in Table 3-1 (e.g., pid_t and uid_t), we must be careful not to include a representation dependency in the printf() call. A representation dependency can occur because C’s argument promotion rules convert values of type short to int, but leave values of type int and long unchanged. This means that, depending on the definition of the system data type, either an int or a long is passed in the printf() call. However, because printf() has no way to determine the types of its arguments at run time, the caller must explicitly provide this information using the %d or %ld format specifier. The problem is that simply coding one of these specifiers within the printf() call creates an implementation dependency. The usual solution is to use the %ld specifier and always cast the corresponding value to long, like so:
+
+```
+pid_t mypid;
+mypid = getpid(); /* Returns process ID of calling process */
+printf("My PID is %ld\n", (long) mypid);
+```
+
+#### Miscellaneous Portability Issues
+
+Each UNIX implementation specifies a range of standard structures that are used in various system calls and library functions. As an example, consider the sembuf structure, which is used to represent a semaphore operation to be performed by the semop() system call:
+
+```
+struct sembuf {
+    unsigned short sem_num; /* Semaphore number */
+    short sem_op; /* Operation to be performed */
+    short sem_flg; /* Operation flags */
+};
+```
+
+Although SUSv3 specifies structures such as sembuf, it is important to realize the following:
+
+* In general, the order of field definitions within such structures is not specified.
+* In some cases, extra implementation-specific fields may be included in such structures.
+
+Consequently, it is not portable to use a structure initializer such as the following:
+
+```
+struct sembuf s = { 3, -1, SEM_UNDO };
+```
+
+Although this initializer will work on Linux, it won’t work on another implementation where the fields in the sembuf structure are defined in a different order.
