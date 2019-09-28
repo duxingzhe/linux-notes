@@ -229,3 +229,17 @@ struct sembuf s = { 3, -1, SEM_UNDO };
 ```
 
 Although this initializer will work on Linux, it won’t work on another implementation where the fields in the sembuf structure are defined in a different order.
+
+#### Using macros that may not be present on all implementations
+
+In some cases, a macro may be not be defined on all UNIX implementations. For example, the WCOREDUMP() macro (which checks whether a child process produced a core dump file) is widely available, but it is not specified in SUSv3. Therefore, this macro might not be present on some UNIX implementations. In order to portably handle such possibilities, we can use the C preprocessor #ifdef directive, as in the following example:
+
+```
+#ifdef WCOREDUMP
+/* Use WCOREDUMP() macro */
+#endif
+```
+
+#### Variation in required header files across implementations
+
+In some cases, the header files required to prototype various system calls and library functions vary across UNIX implementations. In this book, we show the requirements on Linux and note any variations from SUSv3.
