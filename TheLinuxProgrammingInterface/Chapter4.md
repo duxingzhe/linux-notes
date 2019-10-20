@@ -116,3 +116,49 @@ if(fd==-1)
 ```
 
 Examples of the use of open()
+
+#### File descriptor number returned by open()
+
+SUSv3 specifies that if open() succeeds, it is guaranteed to use the lowest-numbered unused file descriptor for the process. We can use this feature to ensure that a file is opened using a particular file descriptor. For example, the following sequence ensures that a file is opened using standard input (file descriptor 0).
+
+#### The open() flags Argument
+
+In some of the example open() calls shown in Listing 4-2, we included other bits (O_CREAT, O_TRUNC, and O_APPEND) in flags in addition to the file access mode. We now consider the flags argument in more detail.
+
+The constants in Table 4-3 are divided into the following groups:
+
+* File access mode flags: These are the O_RDONLY, O_WRONLY, and O_RDWR flags described earlier. They can be retrieved using the fcntl() F_GETFL operation (Section 5.3).
+* File creation flags: These are the flags shown in the second part of Table 4-3. They control various aspects of the behavior of the open() call, as well as options for subsequent I/O operations. These flags can’t be retrieved or changed.
+* Open file status flags: These are the remaining flags in Table 4-3. They can be retrieved and modified using the fcntl() F_GETFL and F_SETFL operations (Section 5.3). These flags are sometimes simply called the file status flags.
+
+#### Errors from open()
+
+If an error occurs while trying to open the file, open() returns –1, and errno identifies the cause of the error. The following are some possible errors that can occur (in addition to those already noted when describing the flags argument above):
+
+EACCES
+
+The file permissions don’t allow the calling process to open the file in the mode specified by flags. Alternatively, because of directory permissions, the file could not be accessed, or the file did not exist and could not be created.
+
+EISDIR
+
+The specified file is a directory, and the caller attempted to open it for writing. This isn’t allowed. (On the other hand, there are occasions when it can be useful to open a directory for reading. We consider an example in Section 18.11.)
+
+EMFILE
+
+The process resource limit on the number of open file descriptors has been reached (RLIMIT_NOFILE, described in Section 36.3).
+
+ENFILE
+
+The system-wide limit on the number of open files has been reached.
+
+ENOENT
+
+The specified file doesn’t exist, and O_CREAT was not specified, or O_CREAT as specified, and one of the directories in pathname doesn’t exist or is a symbolic link pointing to a nonexistent pathname (a dangling link).
+
+EROFS
+
+The specified file is on a read-only file system and the caller tried to open it for writing.
+
+ETXTBSY
+
+The specified file is an executable file (a program) that is currently executing. It is not permitted to modify (i.e., open for writing) the executable file associated with a running program. (We must first terminate the program in order to be able to modify the executable file.)
