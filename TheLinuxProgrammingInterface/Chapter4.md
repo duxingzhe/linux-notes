@@ -162,3 +162,58 @@ The specified file is on a read-only file system and the caller tried to open it
 ETXTBSY
 
 The specified file is an executable file (a program) that is currently executing. It is not permitted to modify (i.e., open for writing) the executable file associated with a running program. (We must first terminate the program in order to be able to modify the executable file.)
+
+### The creat() System Call
+
+In early UNIX implementations, open() had only two arguments and could not be used to create a new file. Instead, the creat() system call was used to create and open a new file.
+
+```
+#include <fcntl.h>
+int creat(const char *pathname, mode_t mode);
+```
+
+The creat() system call creates and opens a new file with the given pathname, or if the file already exists, opens the file and truncates it to zero length. As its function result, creat() returns a file descriptor that can be used in subsequent system calls.
+
+Calling creat() is equivalent to the following open() call:
+
+```
+fd = open(pathname, O_WRONLY | O_CREAT | O_TRUNC, mode);
+```
+
+Because the open() flags argument provides greater control over how the file is opened (e.g., we can specify O_RDWR instead of O_WRONLY), creat() is now obsolete, although it may still be seen in older programs.
+
+### Reading from a File: read()
+
+The read() system call reads data from the open file referred to by the descriptor fd.
+
+```
+#include <unistd.h>
+ssize_t read(int fd, void *buffer, size_t count);
+```
+
+### Writing to a File: write()
+
+The write() system call writes data to an open file.
+
+```
+#include <unistd.h>
+ssize_t write(int fd, void *buffer, size_t count);
+```
+
+### Closing a File: close()
+
+The close() system call closes an open file descriptor, freeing it for subsequent reuse by the process. When a process terminates, all of its open file descriptors are automatically closed.
+
+```
+#include <unistd.h>
+int close(int fd);
+```
+
+### Changing the File Offset: lseek()
+
+For each open file, the kernel records a file offset, sometimes also called the readwrite offset or pointer. This is the location in the file at which the next read() or write() will commence. The file offset is expressed as an ordinal byte position relative to the start of the file. The first byte of the file is at offset 0.
+
+```
+#include <unistd.h>
+off_t lseek(int fd, off_t offset, int whence);
+```
